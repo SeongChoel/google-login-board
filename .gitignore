@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.wrangler/
+.env
+*.local
+*.tsbuildinfo
+/client/vite.config.js
+/client/vite.config.d.ts
+.dev.vars

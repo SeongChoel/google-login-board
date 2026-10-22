@@ -1,0 +1,21 @@
+name = "example-server"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+
+[dev]
+port = 8787
+
+# TODO: 회원 DB가 필요하면 D1 바인딩을 추가하세요.
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "example-db"
+# database_id = "<wrangler d1 create 로 생성된 id>"
+
+# TODO: 이미지 업로드가 필요하면 R2 바인딩을 추가하세요. (wrangler r2 bucket create <이름>)
+# [[r2_buckets]]
+# binding = "BUCKET"
+# bucket_name = "example-uploads"
+
+# TODO: 구글 OAuth 클라이언트 정보 등 비밀값은 시크릿으로 등록하세요.
+# wrangler secret put GOOGLE_CLIENT_ID
+# wrangler secret put GOOGLE_CLIENT_SECRET

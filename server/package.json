@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:migrate:local": "wrangler d1 execute google-login-board-db --local --file=./schema.sql",
+    "db:migrate:remote": "wrangler d1 execute google-login-board-db --remote --file=./schema.sql",
+    "db:seed:local": "wrangler d1 execute google-login-board-db --local --file=./seed.sql"
   },
   "dependencies": {
     "hono": "^4.6.3"

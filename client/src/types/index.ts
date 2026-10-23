@@ -3,10 +3,11 @@
 export interface Post {
   id: number;
   title: string;
-  author: string;
-  createdAt: string;
+  author: string; // 작성자 닉네임
+  authorId: number;
+  createdAt: string; // ISO 문자열 (UTC)
   content: string;
-  imageUrl?: string;
+  imageUrl: string | null;
 }
 
 export interface Comment {

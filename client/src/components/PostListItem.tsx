@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { Post } from "../types";
+import { formatDate } from "../utils/date";
 
 interface Props {
   post: Post;
@@ -14,7 +15,7 @@ export default function PostListItem({ post }: Props) {
       >
         <span className="font-medium text-slate-900">{post.title}</span>
         <span className="whitespace-nowrap text-sm text-slate-500">
-          {post.author} · {post.createdAt}
+          {post.author} · {formatDate(post.createdAt)}
         </span>
       </Link>
     </li>

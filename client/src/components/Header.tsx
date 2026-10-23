@@ -13,7 +13,7 @@ export default function Header() {
     <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4 sm:px-6">
         <Link to="/" className="text-lg font-bold tracking-tight text-slate-900">
-          한코딩 게시판
+          김성철 게시판
         </Link>
 
         {/* 데스크톱 내비게이션 */}

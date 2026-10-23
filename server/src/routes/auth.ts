@@ -1,12 +1,52 @@
 import { Hono } from "hono";
 import type { Bindings } from "../types";
+import { hashPassword } from "../lib/password";
 
 export const auth = new Hono<{ Bindings: Bindings }>();
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PASSWORD_MIN = 8;
+const NICKNAME_MAX = 20;
+
 // POST /api/auth/signup - 사이트 자체 회원가입
-// TODO: 이메일 중복 확인, 비밀번호 해시 처리 후 DB에 저장하세요.
-auth.post("/signup", (c) => {
-  return c.json({ message: "TODO: 회원가입 구현" }, 501);
+auth.post("/signup", async (c) => {
+  const body = await c.req.json().catch(() => null);
+  const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
+  const password = typeof body?.password === "string" ? body.password : "";
+  const nickname = typeof body?.nickname === "string" ? body.nickname.trim() : "";
+
+  if (!EMAIL_PATTERN.test(email)) {
+    return c.json({ message: "올바른 이메일을 입력해 주세요." }, 400);
+  }
+  if (password.length < PASSWORD_MIN) {
+    return c.json({ message: `비밀번호는 ${PASSWORD_MIN}자 이상이어야 합니다.` }, 400);
+  }
+  if (!nickname || nickname.length > NICKNAME_MAX) {
+    return c.json({ message: `닉네임은 1~${NICKNAME_MAX}자로 입력해 주세요.` }, 400);
+  }
+
+  const exists = await c.env.DB.prepare("SELECT 1 FROM users WHERE email = ?").bind(email).first();
+  if (exists) {
+    return c.json({ message: "이미 가입된 이메일입니다." }, 409);
+  }
+
+  const passwordHash = await hashPassword(password);
+  try {
+    const user = await c.env.DB.prepare(
+      `INSERT INTO users (email, password_hash, nickname, provider)
+       VALUES (?, ?, ?, 'local')
+       RETURNING id, email, nickname`
+    )
+      .bind(email, passwordHash, nickname)
+      .first();
+    return c.json({ user }, 201);
+  } catch (err) {
+    // 위 확인과 INSERT 사이에 같은 이메일로 동시에 가입한 경우
+    if (String(err).includes("UNIQUE constraint failed")) {
+      return c.json({ message: "이미 가입된 이메일입니다." }, 409);
+    }
+    throw err;
+  }
 });
 
 // POST /api/auth/login - 사이트 자체 로그인

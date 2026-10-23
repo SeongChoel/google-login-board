@@ -7,7 +7,6 @@ import PostDetailPage from "./pages/PostDetailPage";
 import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
 
-// TODO: 로그인 상태 관리(Context 등)를 도입해서 로그아웃 기능을 구현하세요.
 export default function App() {
   return (
     <div className="flex min-h-screen flex-col">

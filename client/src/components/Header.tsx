@@ -1,10 +1,17 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
-// TODO: 로그인 상태에 따라 "로그인/회원가입" <-> "로그아웃" 표시를 전환하세요.
 export default function Header() {
-  const isLoggedIn = false;
+  const { user, loading, logout } = useAuth();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    setMenuOpen(false);
+    await logout();
+    navigate("/");
+  };
 
   const navLinkClass =
     "text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors";
@@ -21,17 +28,17 @@ export default function Header() {
           <Link to="/" className={navLinkClass}>
             게시판
           </Link>
-          {isLoggedIn ? (
-            <button
-              type="button"
-              className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700 transition-colors"
-              onClick={() => {
-                // TODO: 로그아웃 API 호출 후 상태 갱신
-                console.log("TODO: 로그아웃 처리");
-              }}
-            >
-              로그아웃
-            </button>
+          {loading ? null : user ? (
+            <>
+              <span className="text-sm text-slate-500">{user.nickname}님</span>
+              <button
+                type="button"
+                className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700 transition-colors"
+                onClick={handleLogout}
+              >
+                로그아웃
+              </button>
+            </>
           ) : (
             <>
               <Link to="/login" className={navLinkClass}>
@@ -64,15 +71,13 @@ export default function Header() {
           <Link to="/" className="rounded-md px-2 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
             게시판
           </Link>
-          {isLoggedIn ? (
+          {loading ? null : user ? (
             <button
               type="button"
               className="rounded-md px-2 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-              onClick={() => {
-                console.log("TODO: 로그아웃 처리");
-              }}
+              onClick={handleLogout}
             >
-              로그아웃
+              로그아웃 ({user.nickname})
             </button>
           ) : (
             <>

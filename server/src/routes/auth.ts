@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import type { Bindings } from "../types";
-import { hashPassword } from "../lib/password";
+import { hashPassword, verifyPassword } from "../lib/password";
+import { endSession, getSessionUserId, startSession } from "../lib/session";
 
 export const auth = new Hono<{ Bindings: Bindings }>();
 
@@ -49,16 +50,48 @@ auth.post("/signup", async (c) => {
   }
 });
 
-// POST /api/auth/login - 사이트 자체 로그인
-// TODO: 이메일/비밀번호 검증 후 세션 또는 JWT를 발급하세요.
-auth.post("/login", (c) => {
-  return c.json({ message: "TODO: 로그인 구현" }, 501);
+// POST /api/auth/login - 사이트 자체 로그인 (성공 시 JWT 쿠키 발급)
+auth.post("/login", async (c) => {
+  const body = await c.req.json().catch(() => null);
+  const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
+  const password = typeof body?.password === "string" ? body.password : "";
+
+  if (!email || !password) {
+    return c.json({ message: "이메일과 비밀번호를 입력해 주세요." }, 400);
+  }
+
+  const user = await c.env.DB.prepare(
+    "SELECT id, email, nickname, password_hash FROM users WHERE email = ?"
+  )
+    .bind(email)
+    .first<{ id: number; email: string; nickname: string; password_hash: string | null }>();
+
+  // 구글 가입 회원은 password_hash가 없다.
+  // 없는 이메일이어도 해시를 한 번 계산해, 응답 시간으로 가입 여부가 드러나지 않게 한다.
+  const valid = user?.password_hash
+    ? await verifyPassword(password, user.password_hash)
+    : (await hashPassword(password), false);
+  if (!user || !valid) {
+    return c.json({ message: "이메일 또는 비밀번호가 올바르지 않습니다." }, 401);
+  }
+
+  await startSession(c, user.id);
+  return c.json({ user: { id: user.id, email: user.email, nickname: user.nickname } });
 });
 
-// POST /api/auth/logout - 로그아웃
-// TODO: 세션 또는 토큰을 무효화하세요.
+// GET /api/auth/me - 현재 로그인한 사용자 (비로그인이면 user: null)
+auth.get("/me", async (c) => {
+  const userId = await getSessionUserId(c);
+  const user = userId
+    ? await c.env.DB.prepare("SELECT id, email, nickname FROM users WHERE id = ?").bind(userId).first()
+    : null;
+  return c.json({ user });
+});
+
+// POST /api/auth/logout - 로그아웃 (JWT 쿠키 삭제)
 auth.post("/logout", (c) => {
-  return c.json({ message: "TODO: 로그아웃 구현" }, 501);
+  endSession(c);
+  return c.json({ ok: true });
 });
 
 // GET /api/auth/google - 구글 로그인 시작 (인가 코드 요청 페이지로 리다이렉트)

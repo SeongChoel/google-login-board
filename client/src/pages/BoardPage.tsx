@@ -4,7 +4,6 @@ import PostList from "../components/PostList";
 import { fetchPosts } from "../api/posts";
 import type { Post } from "../types";
 
-// TODO: 로그인하지 않은 사용자는 글쓰기 버튼을 못 누르게(또는 로그인 페이지로 유도) 처리하세요.
 export default function BoardPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);

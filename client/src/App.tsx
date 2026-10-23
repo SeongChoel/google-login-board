@@ -14,8 +14,9 @@ export default function App() {
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
         <Routes>
           <Route path="/" element={<BoardPage />} />
-          <Route path="/board/write" element={<PostWritePage />} />
+          <Route path="/board/write" element={<PostWritePage key="write" />} />
           <Route path="/board/:postId" element={<PostDetailPage />} />
+          <Route path="/board/:postId/edit" element={<PostWritePage key="edit" />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<LoginPage />} />
         </Routes>

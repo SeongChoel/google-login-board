@@ -8,10 +8,14 @@ export async function request<T>(url: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
-export function postJson<T>(url: string, data: unknown): Promise<T> {
+function sendJson<T>(method: string, url: string, data?: unknown): Promise<T> {
   return request<T>(url, {
-    method: "POST",
+    method,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: data === undefined ? undefined : JSON.stringify(data),
   });
 }
+
+export const postJson = <T>(url: string, data: unknown) => sendJson<T>("POST", url, data);
+export const putJson = <T>(url: string, data: unknown) => sendJson<T>("PUT", url, data);
+export const deleteJson = <T>(url: string) => sendJson<T>("DELETE", url);

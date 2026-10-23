@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import CommentList from "../components/CommentList";
-import CommentForm from "../components/CommentForm";
+import CommentSection from "../components/CommentSection";
 import { deletePost, fetchPost } from "../api/posts";
 import { useAuth } from "../contexts/AuthContext";
+import { useConfirm } from "../contexts/ConfirmContext";
 import { formatDate } from "../utils/date";
 import type { Post } from "../types";
 
@@ -12,10 +12,12 @@ export default function PostDetailPage() {
   const id = Number(postId);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const confirm = useConfirm();
 
   const [post, setPost] = useState<Post | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     let ignore = false; // 다른 글로 이동한 뒤 늦게 온 응답은 무시
@@ -30,13 +32,19 @@ export default function PostDetailPage() {
   }, [id]);
 
   const handleDelete = async () => {
-    if (!window.confirm("이 게시글을 삭제할까요?\n삭제하면 댓글도 함께 지워지며 되돌릴 수 없습니다.")) return;
+    const ok = await confirm({
+      message: "이 게시글을 삭제할까요?\n삭제하면 댓글도 함께 지워지며 되돌릴 수 없습니다.",
+      confirmLabel: "삭제",
+      danger: true,
+    });
+    if (!ok) return;
     setDeleting(true);
+    setDeleteError(null);
     try {
       await deletePost(id);
       navigate("/", { replace: true });
     } catch (err) {
-      window.alert((err as Error).message);
+      setDeleteError((err as Error).message);
       setDeleting(false);
     }
   };
@@ -80,6 +88,7 @@ export default function PostDetailPage() {
             </div>
           )}
         </div>
+        {deleteError && <p className="text-sm text-red-500">{deleteError}</p>}
         <div className="flex gap-4 text-sm text-slate-500">
           <span>작성자: {post.author}</span>
           <span>작성일: {formatDate(post.createdAt)}</span>
@@ -90,11 +99,7 @@ export default function PostDetailPage() {
         <p className="min-h-24 whitespace-pre-wrap text-slate-700">{post.content}</p>
       </article>
 
-      <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 sm:p-6">
-        <h2 className="text-lg font-semibold text-slate-900">댓글</h2>
-        <CommentList postId={id} />
-        <CommentForm postId={id} />
-      </div>
+      <CommentSection postId={id} />
     </section>
   );
 }

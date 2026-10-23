@@ -14,7 +14,7 @@ app.use("/api/*", cors());
 app.get("/api/health", (c) => c.json({ status: "ok" }));
 
 app.route("/api/posts", posts);
-app.route("/api/posts", comments);
+app.route("/api", comments); // /api/posts/:postId/comments, /api/comments/:id
 app.route("/api/auth", auth);
 app.route("/api/uploads", uploads);
 

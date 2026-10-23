@@ -13,7 +13,8 @@ export interface Post {
 export interface Comment {
   id: number;
   postId: number;
-  author: string;
+  author: string; // 작성자 닉네임
+  authorId: number;
   content: string;
   createdAt: string;
 }

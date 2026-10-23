@@ -1,15 +1,10 @@
-// TODO: Google Identity Services(OAuth 2.0) 인가 코드 요청 흐름을 구현하세요.
-// 참고: https://developers.google.com/identity/protocols/oauth2
+// 서버의 /api/auth/google로 페이지 전체를 이동시킨다. (fetch가 아니라 링크)
+// 서버가 구글 로그인 페이지로 보내고, 로그인이 끝나면 콜백에서 쿠키를 발급한 뒤 홈으로 돌려보낸다.
 export default function GoogleLoginButton() {
-  const handleClick = () => {
-    console.log("TODO: 구글 간편 로그인 처리");
-  };
-
   return (
-    <button
-      type="button"
+    <a
+      href="/api/auth/google"
       className="flex w-full items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
-      onClick={handleClick}
     >
       <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
         <path
@@ -30,6 +25,6 @@ export default function GoogleLoginButton() {
         />
       </svg>
       Google로 시작하기
-    </button>
+    </a>
   );
 }

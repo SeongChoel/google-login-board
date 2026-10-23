@@ -1,12 +1,17 @@
 import { FormEvent, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import GoogleLoginButton from "../components/GoogleLoginButton";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  // 로그인이 필요한 페이지에서 넘어왔을 때의 안내 문구 (예: 글쓰기)
-  const notice = (useLocation().state as { notice?: string } | null)?.notice;
+  // 로그인이 필요한 페이지에서 넘어왔을 때(예: 글쓰기), 또는 구글 로그인이 실패해 돌아왔을 때의 안내 문구
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const notice =
+    searchParams.get("error") === "google"
+      ? "구글 로그인에 실패했습니다. 다시 시도해 주세요."
+      : (location.state as { notice?: string } | null)?.notice;
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
